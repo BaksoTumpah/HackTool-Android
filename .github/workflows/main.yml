@@ -1,0 +1,40 @@
+name: Build HackTool APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Tambahkan platform Android
+        run: npx cap add android
+
+      - name: Sinkron web assets ke Android
+        run: npx cap sync android
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build APK debug
+        run: ./gradlew assembleDebug
+        working-directory: android
+
+      - name: Upload hasil APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: hacktool-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
